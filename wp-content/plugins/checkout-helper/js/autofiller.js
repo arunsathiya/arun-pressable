@@ -1,50 +1,46 @@
-// Save this as js/autofiller.js in your plugin directory
 jQuery(document).ready(function($) {
     console.log('Checkout Helper loaded');
-    console.log('Available addresses:', checkoutHelperAddresses);
-    
-    let currentAddressIndex = 0;
 
-    // Make sure button exists and is clickable
-    $(document).on('click', '#fill-test-address', function(e) {
-        e.preventDefault();
-        console.log('Fill address button clicked');
-        const address = checkoutHelperAddresses[currentAddressIndex];
-        console.log('Using address:', address);
-        
-        // Try both billing_ and billing- prefixes
-        const fields = {
-            'billing_first_name': address.first_name,
-            'billing-first-name': address.first_name,
-            'billing_last_name': address.last_name,
-            'billing-last-name': address.last_name,
-            'billing_address_1': address.address_1,
-            'billing-address-1': address.address_1,
-            'billing_address_2': address.address_2,
-            'billing-address-2': address.address_2,
-            'billing_city': address.city,
-            'billing-city': address.city,
-            'billing_state': address.state,
-            'billing-state': address.state,
-            'billing_postcode': address.postcode,
-            'billing-postcode': address.postcode,
-            'billing_phone': address.phone,
-            'billing-phone': address.phone
-        };
+    const testAddress = {
+        'billing_first_name': 'Test',
+        'billing_last_name': 'User',
+        'billing_address_1': '123 Test St',
+        'billing_address_2': 'Apt 4B',
+        'billing_city': 'San Francisco',
+        'billing_state': 'CA',
+        'billing_postcode': '94107',
+        'billing_phone': '555-0123',
+        'billing_email': 'test@example.com'
+    };
 
-        // Fill all possible field variations
-        Object.keys(fields).forEach(function(fieldId) {
-            // Try with # prefix
-            $(`#${fieldId}`).val(fields[fieldId]).trigger('change');
-            // Try with name attribute
-            $(`[name="${fieldId}"]`).val(fields[fieldId]).trigger('change');
-        });
+    // Add a button to the page
+    $('<button>', {
+        id: 'fill-test-address',
+        text: 'Fill Test Address',
+        class: 'button alt',
+        css: {
+            'margin': '10px 0'
+        },
+        click: function(e) {
+            e.preventDefault();
+            console.log('Filling form...');
+            
+            // Fill each field and log the operation
+            Object.keys(testAddress).forEach(field => {
+                const $field = $(`input[name="${field}"]`);
+                console.log(`Setting ${field} to ${testAddress[field]}`);
+                if ($field.length) {
+                    $field.val(testAddress[field]).trigger('change');
+                } else {
+                    console.log(`Field ${field} not found`);
+                }
+            });
 
-        // Force WooCommerce to update
-        $(document.body).trigger('update_checkout');
-        
-        // Move to next address in rotation
-        currentAddressIndex = (currentAddressIndex + 1) % checkoutHelperAddresses.length;
-        console.log('Address filled, moved to index:', currentAddressIndex);
-    });
+            // Set state specifically since it might be a select
+            $('#billing_state, select[name="billing_state"]').val('CA').trigger('change');
+
+            // Force form update
+            $('form.checkout').trigger('update');
+        }
+    }).prependTo('form.checkout');
 });
