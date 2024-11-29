@@ -1,0 +1,51 @@
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# WordPress core (in case it gets included accidentally)
+wp-admin/
+wp-includes/
+wp-*.php
+xmlrpc.php
+index.php
+
+# Configuration files
+wp-config.php
+wp-config-sample.php
+
+# Uploads directory
+wp-content/uploads/
+
+# Debug logs
+debug.log
+
+# Cache files
+wp-content/cache/
+wp-content/advanced-cache.php
+wp-content/wp-cache-config.php
+
+# Backup files
+*.bak
+*.swp
+*.zip
+*.sql
+
+# Plugin specific files that shouldn't be versioned
+wp-content/plugins/*/node_modules/
+wp-content/plugins/*/.sass-cache/
+wp-content/plugins/*/.git/
+wp-content/themes/*/node_modules/
+wp-content/themes/*/.sass-cache/
+wp-content/themes/*/.git/
+
+# Development files
+.env
+.env.*
+yarn.lock
+package-lock.json
+composer.lock
