@@ -3,7 +3,11 @@
  * Plugin Name: Checkout Helper
  * Description: Automatically fills checkout forms with test addresses
  * Version: 1.0
- * Author: Your Name
+ * Author: arunsathiya
+ * Requires at least: 5.0
+ * Requires PHP: 7.2
+ * WC requires at least: 3.0
+ * WC tested up to: 8.5
  */
 
 if (!defined('ABSPATH')) {
@@ -35,12 +39,24 @@ class Checkout_Helper {
     ];
 
     public function __construct() {
+        add_action('plugins_loaded', [$this, 'init']);
+    }
+
+    public function init() {
+        // Check if WooCommerce is active
+        if (!class_exists('WooCommerce')) {
+            add_action('admin_notices', function() {
+                echo '<div class="error"><p>Checkout Helper requires WooCommerce to be installed and active.</p></div>';
+            });
+            return;
+        }
+
         add_action('wp_enqueue_scripts', [$this, 'enqueue_scripts']);
         add_action('wp_footer', [$this, 'add_autofill_button']);
     }
 
     public function enqueue_scripts() {
-        if (!is_checkout()) {
+        if (!function_exists('is_checkout') || !is_checkout()) {
             return;
         }
 
@@ -60,7 +76,7 @@ class Checkout_Helper {
     }
 
     public function add_autofill_button() {
-        if (!is_checkout()) {
+        if (!function_exists('is_checkout') || !is_checkout()) {
             return;
         }
         ?>
