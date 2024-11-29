@@ -58,7 +58,7 @@ class Checkout_Helper {
         }
 
         add_action('wp_enqueue_scripts', [$this, 'enqueue_scripts']);
-        add_action('wp_footer', [$this, 'add_autofill_button']);
+        add_action('woocommerce_after_checkout_form', [$this, 'add_autofill_button']);
     }
 
     public function enqueue_scripts() {
@@ -69,8 +69,8 @@ class Checkout_Helper {
         wp_enqueue_script(
             'checkout-helper',
             plugins_url('js/autofiller.js', __FILE__),
-            ['jquery'],
-            '1.0',
+            ['jquery', 'wc-checkout'],
+            time(), // Use time() for development to prevent caching
             true
         );
 
@@ -82,12 +82,9 @@ class Checkout_Helper {
     }
 
     public function add_autofill_button() {
-        if (!function_exists('is_checkout') || !is_checkout()) {
-            return;
-        }
         ?>
         <div style="position: fixed; bottom: 20px; right: 20px; z-index: 9999;">
-            <button id="fill-test-address" style="padding: 10px; background: #2271b1; color: white; border: none; border-radius: 4px; cursor: pointer;">
+            <button type="button" id="fill-test-address" style="padding: 10px; background: #2271b1; color: white; border: none; border-radius: 4px; cursor: pointer;">
                 Fill Test Address
             </button>
         </div>
