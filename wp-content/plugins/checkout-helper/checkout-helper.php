@@ -58,7 +58,7 @@ class Checkout_Helper {
         }
 
         add_action('wp_enqueue_scripts', [$this, 'enqueue_scripts']);
-        add_action('woocommerce_after_checkout_form', [$this, 'add_autofill_button']);
+        add_action('woocommerce_before_checkout_form', [$this, 'add_autofill_button']);
     }
 
     public function enqueue_scripts() {
@@ -83,10 +83,11 @@ class Checkout_Helper {
 
     public function add_autofill_button() {
         ?>
-        <div style="position: fixed; bottom: 20px; right: 20px; z-index: 9999;">
-            <button type="button" id="fill-test-address" style="padding: 10px; background: #2271b1; color: white; border: none; border-radius: 4px; cursor: pointer;">
+        <div style="margin-bottom: 20px;">
+            <button type="button" id="fill-test-address" class="button alt" style="margin-right: 10px;">
                 Fill Test Address
             </button>
+            <small style="color: #666;">Click to automatically fill the form with test data</small>
         </div>
         <?php
     }
