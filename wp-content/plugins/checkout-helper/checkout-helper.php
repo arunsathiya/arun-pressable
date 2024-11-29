@@ -40,6 +40,12 @@ class Checkout_Helper {
 
     public function __construct() {
         add_action('plugins_loaded', [$this, 'init']);
+        add_action('before_woocommerce_init', function() {
+            if (class_exists('\Automattic\WooCommerce\Utilities\FeaturesUtil')) {
+                \Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility('custom_order_tables', __FILE__, true);
+                \Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility('remote_logging', __FILE__, true);
+            }
+        });
     }
 
     public function init() {
