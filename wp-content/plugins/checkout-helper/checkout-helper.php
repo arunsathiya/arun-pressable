@@ -17,24 +17,26 @@ if (!defined('ABSPATH')) {
 class Checkout_Helper {
     private $test_addresses = [
         [
-            'first_name' => 'Test',
-            'last_name' => 'User',
-            'address_1' => '123 Test St',
-            'address_2' => 'Apt 4B',
-            'city' => 'San Francisco',
-            'state' => 'CA',
-            'postcode' => '94107',
-            'phone' => '555-0123'
+            'billing_first_name' => 'Test',
+            'billing_last_name' => 'User',
+            'billing_address_1' => '123 Test St',
+            'billing_address_2' => 'Apt 4B',
+            'billing_city' => 'San Francisco',
+            'billing_state' => 'CA',
+            'billing_postcode' => '94107',
+            'billing_phone' => '555-0123',
+            'billing_email' => 'test@example.com'
         ],
         [
-            'first_name' => 'Sample',
-            'last_name' => 'Customer',
-            'address_1' => '456 Demo Ave',
-            'address_2' => 'Suite 789',
-            'city' => 'Los Angeles',
-            'state' => 'CA',
-            'postcode' => '90001',
-            'phone' => '555-0456'
+            'billing_first_name' => 'Sample',
+            'billing_last_name' => 'Customer',
+            'billing_address_1' => '456 Demo Ave',
+            'billing_address_2' => 'Suite 789',
+            'billing_city' => 'Los Angeles',
+            'billing_state' => 'CA',
+            'billing_postcode' => '90001',
+            'billing_phone' => '555-0456',
+            'billing_email' => 'sample@example.com'
         ]
     ];
 
@@ -49,7 +51,6 @@ class Checkout_Helper {
     }
 
     public function init() {
-        // Check if WooCommerce is active
         if (!class_exists('WooCommerce')) {
             add_action('admin_notices', function() {
                 echo '<div class="error"><p>Checkout Helper requires WooCommerce to be installed and active.</p></div>';
@@ -62,7 +63,7 @@ class Checkout_Helper {
     }
 
     public function enqueue_scripts() {
-        if (!function_exists('is_checkout') || !is_checkout()) {
+        if (!is_checkout()) {
             return;
         }
 
@@ -70,22 +71,29 @@ class Checkout_Helper {
             'checkout-helper',
             plugins_url('js/autofiller.js', __FILE__),
             ['jquery', 'wc-checkout'],
-            time(), // Use time() for development to prevent caching
+            filemtime(plugin_dir_path(__FILE__) . 'js/autofiller.js'),
             true
         );
 
         wp_localize_script(
             'checkout-helper',
-            'checkoutHelperAddresses',
-            $this->test_addresses
+            'checkoutHelperData',
+            [
+                'addresses' => $this->test_addresses,
+                'nonce' => wp_create_nonce('checkout_helper'),
+                'ajaxurl' => admin_url('admin-ajax.php')
+            ]
         );
     }
 
     public function add_autofill_button() {
         ?>
-        <div style="margin-bottom: 20px;">
-            <button type="button" id="fill-test-address" class="button alt" style="margin-right: 10px;">
-                Fill Test Address
+        <div id="checkout-helper-buttons" class="checkout-helper-section" style="margin-bottom: 20px;">
+            <button type="button" id="fill-test-address-1" class="button alt" style="margin-right: 10px;">
+                Fill Test Address 1
+            </button>
+            <button type="button" id="fill-test-address-2" class="button alt" style="margin-right: 10px;">
+                Fill Test Address 2
             </button>
             <small style="color: #666;">Click to automatically fill the form with test data</small>
         </div>

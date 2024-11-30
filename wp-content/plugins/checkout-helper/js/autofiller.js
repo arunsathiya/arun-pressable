@@ -1,46 +1,64 @@
-jQuery(document).ready(function($) {
-    console.log('Checkout Helper loaded');
+jQuery(function($) {
+    'use strict';
+    
+    // Make sure WooCommerce checkout is available
+    if (typeof wc_checkout_params === 'undefined') {
+        console.error('WooCommerce checkout params not found');
+        return;
+    }
 
-    const testAddress = {
-        'billing_first_name': 'Test',
-        'billing_last_name': 'User',
-        'billing_address_1': '123 Test St',
-        'billing_address_2': 'Apt 4B',
-        'billing_city': 'San Francisco',
-        'billing_state': 'CA',
-        'billing_postcode': '94107',
-        'billing_phone': '555-0123',
-        'billing_email': 'test@example.com'
-    };
+    const addresses = checkoutHelperData.addresses;
 
-    // Add a button to the page
-    $('<button>', {
-        id: 'fill-test-address',
-        text: 'Fill Test Address',
-        class: 'button alt',
-        css: {
-            'margin': '10px 0'
-        },
-        click: function(e) {
-            e.preventDefault();
-            console.log('Filling form...');
-            
-            // Fill each field and log the operation
-            Object.keys(testAddress).forEach(field => {
-                const $field = $(`input[name="${field}"]`);
-                console.log(`Setting ${field} to ${testAddress[field]}`);
-                if ($field.length) {
-                    $field.val(testAddress[field]).trigger('change');
-                } else {
-                    console.log(`Field ${field} not found`);
-                }
-            });
-
-            // Set state specifically since it might be a select
-            $('#billing_state, select[name="billing_state"]').val('CA').trigger('change');
-
-            // Force form update
-            $('form.checkout').trigger('update');
+    function fillAddress(addressIndex) {
+        if (!addresses[addressIndex]) {
+            console.error('Address index not found');
+            return;
         }
-    }).prependTo('form.checkout');
+
+        const address = addresses[addressIndex];
+        
+        // Disable form updates temporarily
+        $(document.body).trigger('update_checkout');
+        
+        // Fill each field
+        Object.keys(address).forEach(field => {
+            const $field = $(`#${field}, [name="${field}"]`);
+            
+            if ($field.length) {
+                $field.val(address[field]).trigger('change');
+                
+                // Handle select fields differently
+                if ($field.is('select')) {
+                    $field.trigger('select2:select');
+                }
+            } else {
+                console.warn(`Field ${field} not found in the form`);
+            }
+        });
+
+        // Re-enable form updates
+        $(document.body).trigger('update_checkout');
+        
+        // Show success message
+        const message = $('<div>')
+            .addClass('woocommerce-message')
+            .text('Test address filled successfully')
+            .insertBefore('#checkout-helper-buttons');
+            
+        setTimeout(() => message.fadeOut(400, function() { $(this).remove(); }), 3000);
+    }
+
+    // Bind click events to buttons
+    $('#fill-test-address-1').on('click', function(e) {
+        e.preventDefault();
+        fillAddress(0);
+    });
+
+    $('#fill-test-address-2').on('click', function(e) {
+        e.preventDefault();
+        fillAddress(1);
+    });
+
+    // Remove any duplicate buttons that might have been added
+    $('.checkout-helper-section').not(':first').remove();
 });
